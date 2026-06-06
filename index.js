@@ -9,11 +9,21 @@ console.log('🚀 جاري بدء البوت...');
 const phoneNumber = process.env.PHONE_NUMBER || '201142182793';
 const prefixList = process.env.PREFIX ? process.env.PREFIX.split(',') : [".", "/", "!"];
 
+// دالة لإنشاء كود عشوائي من 8 أحرف وأرقام
+function generateSessionCode() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let code = '';
+  for (let i = 0; i < 8; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
 const client = new Client({
   phoneNumber: phoneNumber,
   prefix: prefixList,
   fromMe: false,
-  printQR: true,
+  printQR: false, // تعطيل عرض الباركود
   owners: [
     {
       name: "عقاب آل أصلي",
@@ -65,6 +75,15 @@ client.ev.on('connection.update', (update) => {
     console.log('🤖 اسم البوت: ' + config.info.nameBot);
     console.log('👤 المالك: عقاب آل أصلي');
     console.log('📱 الرقم: ' + phoneNumber);
+    
+    // إنشاء كود الجلسة وإرساله للمالك
+    const sessionCode = generateSessionCode();
+    console.log(`🔐 كود الجلسة: ${sessionCode}`);
+    
+    // إرسال الكود للمالك
+    client.sendMessage('201142182793@s.whatsapp.net', {
+      text: `✅ تم تشغيل البوت بنجاح!\n\n🔐 كود الجلسة: ${sessionCode}\n\n🤖 اسم البوت: ${config.info.nameBot}\n📱 الرقم: ${phoneNumber}`
+    }).catch(err => console.error('❌ خطأ في إرسال الكود:', err.message));
     
     // تحميل البوتات الثانوية
     try {
