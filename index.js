@@ -5,9 +5,13 @@ import sub from './sub.js';
 
 console.log('🚀 جاري بدء البوت...');
 
+// قراءة متغيرات البيئة
+const phoneNumber = process.env.PHONE_NUMBER || '201142182793';
+const prefixList = process.env.PREFIX ? process.env.PREFIX.split(',') : [".", "/", "!"];
+
 const client = new Client({
-  phoneNumber: '201142182793',
-  prefix: [".", "/", "!"],
+  phoneNumber: phoneNumber,
+  prefix: prefixList,
   fromMe: false,
   printQR: true,
   owners: [
@@ -60,17 +64,70 @@ client.ev.on('connection.update', (update) => {
     console.log('✅ البوت متصل بنجاح!');
     console.log('🤖 اسم البوت: ' + config.info.nameBot);
     console.log('👤 المالك: عقاب آل أصلي');
-    console.log('📱 الرقم: 201142182793');
+    console.log('📱 الرقم: ' + phoneNumber);
+    
+    // تحميل البوتات الثانوية
+    try {
+      sub(client).catch(err => console.error('❌ خطأ في تحميل البوتات الثانوية:', err.message));
+    } catch (error) {
+      console.error('❌ خطأ غير متوقع:', error.message);
+    }
   }
 });
 
 client.ev.on('messages.upsert', async (m) => {
-  if (!m.messages) return;
+  try {
+    if (!m.messages) return;
+    
+    const msg = m.messages[0];
+    
+    if (!msg.message) return;
+    if (msg.key.fromMe) return;
+    
+    const sender = msg.key.remoteJid;
+    const messageBody = getMessageText(msg);
+    
+    // معالجة الرسائل
+    console.log(`📨 رسالة من: ${sender}`);
+    console.log(`💬 المحتوى: ${messageBody}`);
+    
+  } catch (error) {
+    console.error('❌ خطأ في معالجة الرسالة:', error.message);
+  }
+});
+
+/**
+ * استخراج نص الرسالة من أنواع مختلفة
+ * @param {Object} msg - كائن الرسالة
+ * @returns {string|null} - نص الرسالة أو null
+ */
+function getMessageText(msg) {
+  if (!msg.message) return null;
   
-  const msg = m.messages[0];
+  if (msg.message.conversation) return msg.message.conversation;
+  if (msg.message.extendedTextMessage?.text) return msg.message.extendedTextMessage.text;
+  if (msg.message.imageMessage?.caption) return msg.message.imageMessage.caption;
+  if (msg.message.videoMessage?.caption) return msg.message.videoMessage.caption;
+  if (msg.message.audioMessage) return '[🎵 ملف صوتي]';
+  if (msg.message.documentMessage) return '[📄 ملف]';
+  if (msg.message.stickerMessage) return '[🎨 ملصق]';
   
-  if (!msg.message) return;
-  if (msg.key.fromMe) return;
-  
-  const sender = msg.key.remoteJ
-
+  return null;
+}
+
+// معالجة الأخطاء غير المتوقعة
+process.on('unhandledRejection', (err) => {
+  console.error('❌ خطأ غير معالج:', err);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('❌ استثناء غير متوقع:', err);
+});
+
+// بدء البوت
+client.start().catch(err => {
+  console.error('❌ خطأ في بدء البوت:', err.message);
+  process.exit(1);
+});
+
+export default client;
