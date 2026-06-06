@@ -26,7 +26,7 @@ const client = new Client({
   printQR: false, // تعطيل عرض الباركود
   owners: [
     {
-      name: "عقاب آل أصلي",
+      name: "عقاب آل منحرف",
       jid: "201142182793@s.whatsapp.net"
     },
     {
@@ -43,20 +43,23 @@ if (!global.db) {
 
 const { config } = client;
 config.info = {
-  nameBot: "♡ ASIA v1 🎪",
-  nameChannel: "قناة آسيا v1",
+  nameBot: "Aisa bot v1 🎪",
+  nameChannel: "قناة Aisa bot v1",
   idChannel: "120363426553571462@newsletter",
   urls: {
     repo: "https://github.com/qab62324-blip/--v1",
-    channel: "https://whatsapp.com/channel/0029VbD2pIvFXUuVFTTsek0J"
+    channel: "https://whatsapp.com/channel/0029VbD2pIvFXUuVFTTsek0J",
+    developer: "https://whatsapp.com/channel/0029VbD2pIvFXUuVFTTsek0J"
   },
   copyright: {
-    pack: 'آسيا v1',
-    author: 'عقاب آل أصلي'
+    pack: 'Aisa bot v1',
+    author: 'عقاب آل منحرف'
   },
   images: [
-    "https://i.pinimg.com/originals/e2/21/20/e221203f319df949ee65585a657501a2.jpg"
-  ]
+    "https://litter.catbox.moe/7ufa1g.jpg"
+  ],
+  botId: "8886436900:AAFlcNdiHKePEaWN9E0R91MU06C4L_tRojw",
+  developerId: "201142182793"
 };
 
 client.ev.on('connection.update', (update) => {
@@ -73,7 +76,7 @@ client.ev.on('connection.update', (update) => {
   } else if (connection === 'open') {
     console.log('✅ البوت متصل بنجاح!');
     console.log('🤖 اسم البوت: ' + config.info.nameBot);
-    console.log('👤 المالك: عقاب آل أصلي');
+    console.log('👤 المالك: عقاب آل منحرف');
     console.log('📱 الرقم: ' + phoneNumber);
     
     // إنشاء كود الجلسة وإرساله للمالك
