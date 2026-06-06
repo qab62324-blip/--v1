@@ -3,36 +3,33 @@ import { group, access } from "./system/control.js";
 import UltraDB from "./system/UltraDB.js";
 import sub from './sub.js';
 
+console.log('🚀 جاري بدء البوت...');
+
 const client = new Client({
   phoneNumber: '201142182793',
   prefix: [".", "/", "!"],
   fromMe: false,
+  printQR: true,
   owners: [
     {
       name: "عقاب آل أصلي",
-      lid: "52429437595728@lid",
       jid: "201142182793@s.whatsapp.net"
     },
     {
       name: "المطور",
-      jid: "52429437595728@s.whatsapp.net",
-      lid: "52429437595728@lid"
+      jid: "52429437595728@s.whatsapp.net"
     }
   ],
-  settings: { noWelcome: false },
   commandsPath: './plugins'
 });
 
-client.onGroupEvent(group);
-client.onCommandAccess(access);
-
 if (!global.db) {
-    global.db = new UltraDB();
+  global.db = new UltraDB();
 }
 
 const { config } = client;
 config.info = {
-  nameBot: "♡ 𝙰𝚂𝙸𝙰 𝚟1 🎪 〈",
+  nameBot: "♡ ASIA v1 🎪",
   nameChannel: "قناة آسيا v1",
   idChannel: "120363426553571462@newsletter",
   urls: {
@@ -44,25 +41,99 @@ config.info = {
     author: 'عقاب آل أصلي'
   },
   images: [
-    "https://i.pinimg.com/originals/e2/21/20/e221203f319df949ee65585a657501a2.jpg",
-    "https://i.pinimg.com/originals/11/26/97/11269786cdb625c60213212aa66273a9.png"
+    "https://i.pinimg.com/originals/e2/21/20/e221203f319df949ee65585a657501a2.jpg"
   ]
 };
 
-client.start();
-
-setTimeout(async () => {
-  if (client.commandSystem) {
-    sub(client)
+client.ev.on('connection.update', (update) => {
+  const { connection, lastDisconnect } = update;
+  if (connection === 'close') {
+    if (lastDisconnect?.error?.output?.statusCode !== 401) {
+      console.log('⏳ جاري إعادة الاتصال...');
+      setTimeout(() => client.start(), 3000);
+    } else {
+      console.log('❌ انتهت الجلسة - قم بمسح session وحاول مجدداً');
+    }
+  } else if (connection === 'connecting') {
+    console.log('🔄 جاري الاتصال...');
+  } else if (connection === 'open') {
+    console.log('✅ البوت متصل بنجاح!');
+    console.log('🤖 اسم البوت: ' + config.info.nameBot);
+    console.log('👤 المالك: عقاب آل أصلي');
+    console.log('📱 الرقم: 201142182793');
   }
-}, 2000);
+});
 
-process.on('uncaughtException', (e) => {
-    if (e.message.includes('rate-overlimit')) {}
+client.ev.on('messages.upsert', async (m) => {
+  if (!m.messages) return;
+  
+  const msg = m.messages[0];
+  
+  if (!msg.message) return;
+  if (msg.key.fromMe) return;
+  
+  const sender = msg.key.remoteJid;
+  const text = msg.message.conversation || msg.message.extendedTextMessage?.text || '';
+  
+  if (text === '.ping') {
+    await client.sendMessage(sender, { text: '🏓 Pong! ' + new Date().getTime() + 'ms' });
+  }
+  
+  if (text === '.menu') {
+    const menu = `
+╔════════════════════════════════╗
+║     🤖 ASIA v1 BOT
+╠════════════════════════════════╣
+║  قائمة الأوامر:
+║  🔹 .ping - اختبر البوت
+║  🔹 .menu - عرض القائمة
+║  🔹 .info - معلومات البوت
+║  🔹 .owner - صاحب البوت
+╚════════════════════════════════╝
+    `;
+    await client.sendMessage(sender, { text: menu });
+  }
+  
+  if (text === '.info') {
+    const info = `
+╔════════════════════════════════╗
+║     ℹ️ معلومات البوت
+╠════════════════════════════════╣
+║  🤖 الاسم: ASIA v1
+║  👤 المالك: عقاب آل أصلي
+║  📱 القناة: قناة آسيا v1
+║  🔗 الرابط:
+║  https://whatsapp.com/channel/0029VbD2pIvFXUuVFTTsek0J
+║  ✨ الإصدار: v2.1.0
+╚════════════════════════════════╝
+    `;
+    await client.sendMessage(sender, { text: info });
+  }
+  
+  if (text === '.owner') {
+    const owner = `
+╔════════════════════════════════╗
+║     👑 صاحب البوت
+╠════════════════════════════════╣
+║  📛 الاسم: عقاب آل أصلي
+║  📱 الرقم: 201142182793
+║  🆔 المعرف: 52429437595728
+║  💬 تواصل: wa.me/201142182793
+╚════════════════════════════════╝
+    `;
+    await client.sendMessage(sender, { text: owner });
+  }
+});
+
+client.start().catch(err => {
+  console.error('❌ خطأ في البوت:', err.message);
+  setTimeout(() => client.start(), 3000);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('❌ خطأ عام:', err);
 });
 
 process.on('unhandledRejection', (err) => {
-    console.error('❌ خطأ:', err)
+  console.error('❌ رفض غير معالج:', err);
 });
-
-console.log('🚀 بوت آسيا v1 يعمل الآن!');
