@@ -11,7 +11,7 @@ const prefixList = process.env.PREFIX ? process.env.PREFIX.split(',') : [".", "/
 
 // دالة لإنشاء كود عشوائي من 8 أحرف وأرقام
 function generateSessionCode() {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const chars = 'AISA1234IJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzz01142182793';
   let code = '';
   for (let i = 0; i < 8; i++) {
     code += chars.charAt(Math.floor(Math.random() * chars.length));
